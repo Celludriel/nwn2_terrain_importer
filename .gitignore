@@ -4,3 +4,6 @@
 
 /TerrainImporter/bin/Debug
 /TerrainImporter/obj/Debug
+/TerrainImporter/bin/Release
+/TerrainImporter/obj/Release/TempPE
+/TerrainImporter/obj/Release

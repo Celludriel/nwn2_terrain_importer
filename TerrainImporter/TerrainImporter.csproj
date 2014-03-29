@@ -39,6 +39,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\Windows\Microsoft.NET\DirectX for Managed Code\1.0.2902.0\Microsoft.DirectX.dll</HintPath>
     </Reference>
+    <Reference Include="MiscUtil-r285, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d3c42c4bfacf7596, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Users\N069261KDS\Documents\Visual Studio 2013\Projects\TerrainImporter\TerrainImporter\libs\MiscUtil-r285.dll</HintPath>
+    </Reference>
     <Reference Include="NWN2Toolset">
       <HintPath>..\..\..\..\..\..\..\Games\nwn2\NWN2Toolset.dll</HintPath>
     </Reference>
