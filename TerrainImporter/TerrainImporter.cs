@@ -146,9 +146,11 @@ namespace TerrainImporter
                         }
 
                         //work all the area manipulation
+                        netDisplayManager.BeginSynchronizedOperation();
                         manipulateTerrain(importerSettings, paintTerrain, texturePressure, textureInnerRadius, textureOuterRadius, nwN2AreaViewer, terrainEditor, netDisplayManager, z, ref vector3, ref texture, textureName);
                         handleWaterMap(importerSettings, nwN2AreaViewer, terrainEditor, netDisplayManager, x, y, z, ref vector3, texture);
                         handleAttributeMap(importerSettings, nwN2AreaViewer, terrainEditor, netDisplayManager, outerRight, outerTop, x, y, areaX, areaY, z, ref vector3, texture, ref textureName);
+                        netDisplayManager.EndSynchronizedOperation();
 
                         updateProgress(importerProgress, outerTop, areaX, areaY);
 
@@ -196,16 +198,14 @@ namespace TerrainImporter
 
         private void manipulateTerrain(TerrainImporterSettings importerSettings, bool paintTerrain, float texturePressure, float textureInnerRadius, float textureOuterRadius, NWN2AreaViewer nwN2AreaViewer, NWN2TerrainEditorForm terrainEditor, SynchronousNetDisplayManager netDisplayManager, float zValue, ref Vector3 vector3, ref string texture, string textureName)
         {
-            netDisplayManager.BeginSynchronizedOperation();
-            ((NetDisplayManager)netDisplayManager).TerrainBrush(nwN2AreaViewer.AreaNetDisplayWindow.Scene, 1, 0, vector3, 1f, 1f, zValue, 0.5f, terrainEditor.TerrainBrushColor, terrainEditor.CursorColor, texture, TerrainModificationType.Flatten);
-            ((NetDisplayManager)netDisplayManager).TerrainModify(nwN2AreaViewer.AreaNetDisplayWindow.Scene, TerrainModificationType.Flatten, 0);
+            netDisplayManager.TerrainBrush(nwN2AreaViewer.AreaNetDisplayWindow.Scene, 1, 0, vector3, 1f, 1f, zValue, 0.5f, terrainEditor.TerrainBrushColor, terrainEditor.CursorColor, texture, TerrainModificationType.Flatten);
+            netDisplayManager.TerrainModify(nwN2AreaViewer.AreaNetDisplayWindow.Scene, TerrainModificationType.Flatten, 0);
             if (paintTerrain)
             {
                 texture = (string)importerSettings.paintTextures[textureName];
-                ((NetDisplayManager)netDisplayManager).TerrainBrush(nwN2AreaViewer.AreaNetDisplayWindow.Scene, 1, 0, vector3, textureInnerRadius, textureOuterRadius, texturePressure, 0.5f, terrainEditor.TerrainBrushColor, terrainEditor.CursorColor, texture, TerrainModificationType.Flatten);
-                ((NetDisplayManager)netDisplayManager).TerrainModify(nwN2AreaViewer.AreaNetDisplayWindow.Scene, TerrainModificationType.Texture, 0);
+                netDisplayManager.TerrainBrush(nwN2AreaViewer.AreaNetDisplayWindow.Scene, 1, 0, vector3, textureInnerRadius, textureOuterRadius, texturePressure, 0.5f, terrainEditor.TerrainBrushColor, terrainEditor.CursorColor, texture, TerrainModificationType.Flatten);
+                netDisplayManager.TerrainModify(nwN2AreaViewer.AreaNetDisplayWindow.Scene, TerrainModificationType.Texture, 0);
             }
-            netDisplayManager.EndSynchronizedOperation();
         }
 
         private void handleWaterMap(TerrainImporterSettings importerSettings, NWN2AreaViewer nwN2AreaViewer, NWN2TerrainEditorForm terrainEditor, SynchronousNetDisplayManager netDisplayManager, int x, int y, float z, ref Vector3 vector3, string texture)
@@ -238,11 +238,9 @@ namespace TerrainImporter
 
         private void paintWaterOnMap(NWN2AreaViewer nwN2AreaViewer, NWN2TerrainEditorForm terrainEditor, SynchronousNetDisplayManager netDisplayManager, float z, Vector3 vector3, string texture)
         {
-            netDisplayManager.BeginSynchronizedOperation();
-            ((NetDisplayManager)netDisplayManager).TerrainBrush(nwN2AreaViewer.AreaNetDisplayWindow.Scene, 1, 1, vector3, 1f, 6f, z, 0.5f, terrainEditor.TerrainBrushColor, terrainEditor.CursorColor, texture, TerrainModificationType.Water);
+            netDisplayManager.TerrainBrush(nwN2AreaViewer.AreaNetDisplayWindow.Scene, 1, 1, vector3, 1f, 6f, z, 0.5f, terrainEditor.TerrainBrushColor, terrainEditor.CursorColor, texture, TerrainModificationType.Water);
             terrainEditor.UpdateWaterSliders();
-            ((NetDisplayManager)netDisplayManager).TerrainModify(nwN2AreaViewer.AreaNetDisplayWindow.Scene, TerrainModificationType.Water, -1);
-            netDisplayManager.EndSynchronizedOperation();
+            netDisplayManager.TerrainModify(nwN2AreaViewer.AreaNetDisplayWindow.Scene, TerrainModificationType.Water, -1);
         }
 
         private void updateProgress(TerrainImporterProgress importerProgress, float outerTop, float valueX, float valueY)
@@ -276,12 +274,10 @@ namespace TerrainImporter
                 float floatFullRadius = Convert.ToSingle(++fullRadius);
                 if ((bool)hashtable["doPaint"] && (double)areaX > (double)floatFullRadius && ((double)areaX < (double)outerRight - (double)floatFullRadius && (double)areaY > (double)floatFullRadius) && (double)areaY < (double)outerTop - (double)floatFullRadius)
                 {
-                    netDisplayManager.BeginSynchronizedOperation();
                     string[] textures = (string[])((ArrayList)hashtable["textures"]).ToArray(typeof(string));
-                    ((NetDisplayManager)netDisplayManager).GrassParameters(nwN2AreaViewer.AreaNetDisplayWindow.Scene, (float)hashtable["bladeSize"], (float)hashtable["bladeSizeVariation"], textures.Length, textures);
-                    ((NetDisplayManager)netDisplayManager).TerrainBrush(nwN2AreaViewer.AreaNetDisplayWindow.Scene, 1, 1, vector3, Convert.ToSingle(hashtable["innerRadius"]), Convert.ToSingle(hashtable["outerRadius"]), (float)hashtable["pressure"], 0.5f, terrainEditor.TerrainBrushColor, terrainEditor.CursorColor, texture, TerrainModificationType.Grass);
-                    ((NetDisplayManager)netDisplayManager).TerrainModify(nwN2AreaViewer.AreaNetDisplayWindow.Scene, TerrainModificationType.Grass, -1);
-                    netDisplayManager.EndSynchronizedOperation();
+                    netDisplayManager.GrassParameters(nwN2AreaViewer.AreaNetDisplayWindow.Scene, (float)hashtable["bladeSize"], (float)hashtable["bladeSizeVariation"], textures.Length, textures);
+                    netDisplayManager.TerrainBrush(nwN2AreaViewer.AreaNetDisplayWindow.Scene, 1, 1, vector3, Convert.ToSingle(hashtable["innerRadius"]), Convert.ToSingle(hashtable["outerRadius"]), (float)hashtable["pressure"], 0.5f, terrainEditor.TerrainBrushColor, terrainEditor.CursorColor, texture, TerrainModificationType.Grass);
+                    netDisplayManager.TerrainModify(nwN2AreaViewer.AreaNetDisplayWindow.Scene, TerrainModificationType.Grass, -1);                    
                 }
             }
         }
