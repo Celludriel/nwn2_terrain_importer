@@ -420,6 +420,7 @@ namespace TerrainImporter.Forms
                 return;
             }
             string landType = this.terrainLandTypeComboBox.Text;
+            this.textureListView.Focus();
             this.textureListView.Items[(string)this.paintTextures[landType]].Selected = true;
             this.bigTextureBox.Image = this.paintTexturesImageList.Images[(string)this.paintTextures[landType]];
         }
@@ -432,15 +433,17 @@ namespace TerrainImporter.Forms
             }
 
             string landType = this.grassLandTypeComboBox.Text;
-            Hashtable paintGrassTable = ((Hashtable)this.paintGrass[landType]);
+            this.grassListView.ItemSelectionChanged -= this.grassListView_ItemSelectionChanged;
             this.grassListView.SelectedItems.Clear();
-
+            
+            Hashtable paintGrassTable = (Hashtable)this.paintGrass[landType];
             ArrayList selectedTextures = (ArrayList)paintGrassTable["textures"];
             for (int i = 0; i < selectedTextures.Count; i++)
             {
                 string index = (string)selectedTextures[i];
                 this.grassListView.Items[index].Selected = true;
             }
+            this.grassListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.grassListView_ItemSelectionChanged);
 
             this.grassInnerRadius.Value = (Decimal)paintGrassTable["innerRadius"];
             this.grassOuterRadius.Value = (Decimal)paintGrassTable["outerRadius"];
@@ -452,17 +455,20 @@ namespace TerrainImporter.Forms
             this.paintGrassCheckbox.Checked = (bool)paintGrassTable["doPaint"];
         }
 
-        private void grassListView_SelectedIndexChanged(object sender, EventArgs e)
+        private void grassListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
             string landType = this.grassLandTypeComboBox.Text;
             if (this.grassListView.SelectedIndices.Count > 0 && this.grassListView.SelectedIndices.Count < 4)
             {
-                ArrayList selectedGrassTextures = (ArrayList)((Hashtable)this.paintGrass[landType])["textures"];
+                MessageBox.Show(e.ToString());
+                Hashtable paintGrassTable = (Hashtable)this.paintGrass[landType];
+                ArrayList selectedGrassTextures = (ArrayList)paintGrassTable["textures"];
                 selectedGrassTextures.Clear();
                 foreach (ListViewItem listViewItem in this.grassListView.SelectedItems)
                 {
                     selectedGrassTextures.Add(listViewItem.Text);
                 }
+                paintGrassTable["textures"] = selectedGrassTextures;
             }
             else
             {
@@ -471,9 +477,9 @@ namespace TerrainImporter.Forms
                     return;
                 }
                 MessageBox.Show("You cannot have more than 3 grasses selected for any given attribute type");
-            }
-
-        }
+                e.Item.Selected = false;
+            }            
+        }        
 
         private void grassInnerRadius_ValueChanged(object sender, EventArgs e)
         {
@@ -750,6 +756,6 @@ namespace TerrainImporter.Forms
                 minMaxValue = ((TreeSetting)((ArrayList)((Hashtable)this.paintTrees[landType])["treeSettings"])[this.selectedTreesBox.SelectedIndex]).Scale[x, y].ToString();
             }
             return minMaxValue;
-        }        
+        }
     }
 }

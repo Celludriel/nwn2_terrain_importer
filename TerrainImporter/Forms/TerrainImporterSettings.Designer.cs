@@ -465,6 +465,7 @@
             // textureListView
             // 
             this.textureListView.Enabled = false;
+            this.textureListView.HideSelection = false;
             this.textureListView.Location = new System.Drawing.Point(160, 40);
             this.textureListView.MultiSelect = false;
             this.textureListView.Name = "textureListView";
@@ -648,12 +649,13 @@
             // grassListView
             // 
             this.grassListView.Enabled = false;
+            this.grassListView.HideSelection = false;
             this.grassListView.Location = new System.Drawing.Point(409, 9);
             this.grassListView.Name = "grassListView";
             this.grassListView.Size = new System.Drawing.Size(176, 296);
             this.grassListView.TabIndex = 14;
             this.grassListView.UseCompatibleStateImageBehavior = false;
-            this.grassListView.SelectedIndexChanged += new System.EventHandler(this.grassListView_SelectedIndexChanged);
+            this.grassListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.grassListView_ItemSelectionChanged);
             // 
             // paintGrassCheckbox
             // 
