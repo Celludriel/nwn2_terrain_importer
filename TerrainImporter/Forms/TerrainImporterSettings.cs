@@ -443,7 +443,7 @@ namespace TerrainImporter.Forms
                 string index = (string)selectedTextures[i];
                 this.grassListView.Items[index].Selected = true;
             }
-            this.grassListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.grassListView_ItemSelectionChanged);
+            this.grassListView.ItemSelectionChanged += new ListViewItemSelectionChangedEventHandler(this.grassListView_ItemSelectionChanged);
 
             this.grassInnerRadius.Value = (Decimal)paintGrassTable["innerRadius"];
             this.grassOuterRadius.Value = (Decimal)paintGrassTable["outerRadius"];

@@ -68,8 +68,8 @@ namespace TerrainImporter
 
         public void Startup(INWN2PluginHost Host)
         {
-            this.menuItem = Host.GetMenuForPlugin((INWN2Plugin)this);
-            ((ToolbarItemBase)this.menuItem).Activate += new EventHandler(this.TerrainImporter_Activate);
+            this.menuItem = Host.GetMenuForPlugin(this);
+            this.menuItem.Activate += new EventHandler(this.TerrainImporter_Activate);
         }
 
         public void Load(INWN2PluginHost Host)
@@ -86,7 +86,7 @@ namespace TerrainImporter
 
         private void TerrainImporter_Activate(object sender, EventArgs e)
         {
-            if (((CollectionBase)((NetDisplayManager)NWN2NetDisplayManager.Instance).Scenes).Count > 0)
+            if (NWN2NetDisplayManager.Instance.Scenes.Count > 0)
             {
                 TerrainImporterSettings importerSettings = new TerrainImporterSettings();
                 importerSettings.ShowDialog();
@@ -101,13 +101,13 @@ namespace TerrainImporter
                 float textureOuterRadius = Convert.ToSingle(importerSettings.textureOuterRadius.Value);
 
                 TerrainImporterProgress importerProgress = new TerrainImporterProgress();
-                ((Control)importerProgress).Show();
+                importerProgress.Show();
 
                 List<NWN2AreaViewer> allAreaViewers = NWN2ToolsetMainForm.App.GetAllAreaViewers();
                 NWN2AreaViewer nwN2AreaViewer = allAreaViewers[allAreaViewers.IndexOf((NWN2AreaViewer)NWN2ToolsetMainForm.App.GetActiveViewer())];
                 NWN2TerrainEditorForm terrainEditor = NWN2ToolsetMainForm.App.TerrainEditor;
                 BoundingBox3 boundsOfArea = nwN2AreaViewer.Area.GetBoundsOfArea();
-                SynchronousNetDisplayManager netDisplayManager = (SynchronousNetDisplayManager)NWN2NetDisplayManager.Instance;
+                SynchronousNetDisplayManager netDisplayManager = NWN2NetDisplayManager.Instance;
 
                 float coordinateIncrement = 1.666667f;
                 float outerRight = boundsOfArea.Right + 160f + coordinateIncrement;
@@ -115,21 +115,21 @@ namespace TerrainImporter
 
                 int heightMapUpperLeftX = Convert.ToInt32(importerSettings.upperLeftX.Value);
                 int heightMapUpperLeftY = Convert.ToInt32(importerSettings.upperLeftY.Value);
-                float areaToHeigtmapXdifference = (Convert.ToSingle(importerSettings.lowerRightX.Value - (Decimal)heightMapUpperLeftX) - 1f) / outerRight;
-                float areaToHeightmapYdifference = (Convert.ToSingle(importerSettings.lowerRightY.Value - (Decimal)heightMapUpperLeftY) - 1f) / outerTop;
+                float areaToHeigtmapXdifference = (Convert.ToSingle(importerSettings.lowerRightX.Value - heightMapUpperLeftX) - 1f) / outerRight;
+                float areaToHeightmapYdifference = (Convert.ToSingle(importerSettings.lowerRightY.Value - heightMapUpperLeftY) - 1f) / outerTop;
 
                 float heightDiff = Convert.ToSingle(importerSettings.maximumHeight.Value - importerSettings.minimumHeight.Value);
                 float minHeight = Convert.ToSingle(importerSettings.minimumHeight.Value);
-                importerProgress.Maximum = Convert.ToInt32(Math.Round((double)outerRight * (double)outerTop));
+                importerProgress.Maximum = Convert.ToInt32(Math.Round(outerRight * outerTop));
 
                 float areaX = 0.0f;
-                while ((double)areaX < (double)outerRight)
+                while (areaX < outerRight)
                 {
                     float areaY = 0.0f;
-                    while ((double)areaY < (double)outerTop)
+                    while (areaY < outerTop)
                     {
-                        int areaOffsetX = Convert.ToInt32(Math.Round((double)areaToHeigtmapXdifference * (double)areaX));
-                        int areaOffsetY = Convert.ToInt32(Math.Round((double)areaToHeightmapYdifference * (double)areaY));
+                        int areaOffsetX = Convert.ToInt32(Math.Round(areaToHeigtmapXdifference * areaX));
+                        int areaOffsetY = Convert.ToInt32(Math.Round(areaToHeightmapYdifference * areaY));
                         int x = areaOffsetX + heightMapUpperLeftX;
                         int y = areaOffsetY + heightMapUpperLeftY;
                         float z = getHeightValue(importerSettings, heightDiff, minHeight, x, y);
@@ -163,7 +163,7 @@ namespace TerrainImporter
             }
             else
             {
-                int num = (int)MessageBox.Show("You must have an area open to use this tool.", "No Area", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                MessageBox.Show("You must have an area open to use this tool.", "No Area", MessageBoxButtons.OK, MessageBoxIcon.Hand);
             }
         }
 
@@ -214,7 +214,7 @@ namespace TerrainImporter
             if (importerSettings.paintWaterCheckbox.Checked)
             {
                 float seaLevel = Convert.ToSingle(importerSettings.seaLevel.Value);
-                if (waterMap == null && (double)z < (double)Convert.ToSingle(importerSettings.seaLevel.Value))
+                if (waterMap == null && z < Convert.ToSingle(importerSettings.seaLevel.Value))
                 {
                     paintWaterOnMap(nwN2AreaViewer, terrainEditor, netDisplayManager, seaLevel, vector3, texture);
                 }
@@ -245,7 +245,7 @@ namespace TerrainImporter
 
         private void updateProgress(TerrainImporterProgress importerProgress, float outerTop, float valueX, float valueY)
         {
-            int progress = Convert.ToInt32(Math.Round((double)valueX * (double)outerTop + (double)valueY));
+            int progress = Convert.ToInt32(Math.Round(valueX * outerTop + valueY));
             importerProgress.progress = progress >= importerProgress.Maximum ? importerProgress.Maximum : progress;
             Thread.Sleep(0);
         }
@@ -272,7 +272,7 @@ namespace TerrainImporter
                 Hashtable hashtable = (Hashtable)importerSettings.paintGrass[textureName];
                 Decimal fullRadius = (Decimal)hashtable["innerRadius"] + (Decimal)hashtable["outerRadius"];
                 float floatFullRadius = Convert.ToSingle(++fullRadius);
-                if ((bool)hashtable["doPaint"] && (double)areaX > (double)floatFullRadius && ((double)areaX < (double)outerRight - (double)floatFullRadius && (double)areaY > (double)floatFullRadius) && (double)areaY < (double)outerTop - (double)floatFullRadius)
+                if ((bool)hashtable["doPaint"] && areaX > floatFullRadius && (areaX < outerRight - floatFullRadius && areaY > floatFullRadius) && areaY < outerTop - floatFullRadius)
                 {
                     string[] textures = (string[])((ArrayList)hashtable["textures"]).ToArray(typeof(string));
                     netDisplayManager.GrassParameters(nwN2AreaViewer.AreaNetDisplayWindow.Scene, (float)hashtable["bladeSize"], (float)hashtable["bladeSizeVariation"], textures.Length, textures);
@@ -292,10 +292,10 @@ namespace TerrainImporter
                     int totalTreeSettingWeight = 0;
                     foreach (TreeSetting treeSetting in (ArrayList)hashtable["treeSettings"])
                     {
-                        totalTreeSettingWeight += (int)treeSetting.Weight;
+                        totalTreeSettingWeight += treeSetting.Weight;
                     }
 
-                    int randomWeight = Convert.ToInt32(this.rng.NextDouble() * (double)totalTreeSettingWeight);
+                    int randomWeight = Convert.ToInt32(this.rng.NextDouble() * totalTreeSettingWeight);
                     int treeSettingWeight = 0;
                     int treeSettingIndex;
                     for (treeSettingIndex = 0; treeSettingIndex < ((ArrayList)hashtable["treeSettings"]).Count; ++treeSettingIndex)
@@ -310,12 +310,12 @@ namespace TerrainImporter
                     NWN2TreeInstance fromBlueprint = NWN2TreeInstance.CreateFromBlueprint(treeSetting1.Tree);
                     ((NWN2TreeTemplate)fromBlueprint).Scale = new Vector3(1f, 1f, 1f)
                     {
-                        X = Convert.ToSingle(this.rng.NextDouble() * ((double)treeSetting1.Scale[0, 1] - (double)treeSetting1.Scale[0, 0]) + (double)treeSetting1.Scale[0, 0]),
-                        Y = Convert.ToSingle(this.rng.NextDouble() * ((double)treeSetting1.Scale[1, 1] - (double)treeSetting1.Scale[1, 0]) + (double)treeSetting1.Scale[1, 0]),
-                        Z = Convert.ToSingle(this.rng.NextDouble() * ((double)treeSetting1.Scale[2, 1] - (double)treeSetting1.Scale[2, 0]) + (double)treeSetting1.Scale[2, 0])
+                        X = Convert.ToSingle(this.rng.NextDouble() * (treeSetting1.Scale[0, 1] - treeSetting1.Scale[0, 0]) + treeSetting1.Scale[0, 0]),
+                        Y = Convert.ToSingle(this.rng.NextDouble() * (treeSetting1.Scale[1, 1] - treeSetting1.Scale[1, 0]) + treeSetting1.Scale[1, 0]),
+                        Z = Convert.ToSingle(this.rng.NextDouble() * (treeSetting1.Scale[2, 1] - treeSetting1.Scale[2, 0]) + treeSetting1.Scale[2, 0])
                     };
                     fromBlueprint.Position = new Vector3(areaX, areaY, z - 0.25f);
-                    NWN2ToolsetMainForm.App.AreaContents.Area.AddInstance((INWN2Instance)fromBlueprint);
+                    NWN2ToolsetMainForm.App.AreaContents.Area.AddInstance(fromBlueprint);
                 }
             }
         }
